@@ -16,3 +16,4 @@ gradle-app.setting
 /jplagClassroom/.settings/org.eclipse.jdt.core.prefs
 *.prefs
 *.class
+/jplagClassroom/.classpath
