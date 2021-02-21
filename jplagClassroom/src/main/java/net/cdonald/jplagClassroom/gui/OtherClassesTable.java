@@ -2,6 +2,8 @@ package net.cdonald.jplagClassroom.gui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JProgressBar;
 import javax.swing.JTable;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
@@ -23,6 +27,7 @@ import net.cdonald.jplagClassroom.googleCommunication.ClassroomInfo;
 import net.cdonald.jplagClassroom.mainProgramData.MainClassroomData;
 import net.cdonald.jplagClassroom.mainProgramData.MainClassroomDataListener;
 
+@SuppressWarnings("serial")
 public class OtherClassesTable extends JTable implements MainClassroomDataListener {
 	private static final String [] COLUMN_NAMES= {"Year", "Class", "Assignment"};
 	private static final int MIN_ROWS = 15;
@@ -50,8 +55,9 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 		classroomData = data;
 		classroomData.addListener(this);
 		yearCombo = new JComboBox<String>();
+		DefaultCellEditor yearEditor = new DefaultCellEditor(yearCombo);
 		this.setModel(new DefaultTableModel(COLUMN_NAMES, MIN_ROWS));
-		getColumn(COLUMN_NAMES[0]).setCellEditor(new DefaultCellEditor(yearCombo));
+		getColumn(COLUMN_NAMES[0]).setCellEditor(yearEditor);
 		getColumn(COLUMN_NAMES[1]).setCellEditor(new ClassColumnEditor(data, progress));
 		getColumn(COLUMN_NAMES[2]).setCellEditor(new AssignmentColumnEditor(data, progress));
 		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(getModel());
@@ -130,8 +136,6 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 			};
 			return itemListener;
 		}
-				
-
 	}
 	
 	class ClassColumnEditor extends ClassInfoColumnEditor {		

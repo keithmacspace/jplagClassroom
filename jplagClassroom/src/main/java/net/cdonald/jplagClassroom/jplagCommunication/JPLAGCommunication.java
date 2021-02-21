@@ -35,6 +35,7 @@ public class JPLAGCommunication {
 	private String othersPath;
 	private String outPath;
 	private boolean hasOthers = false;
+	private boolean hasBase = false;
 	public JPLAGCommunication() {
 		mainPath = initPath(MAIN_COMPARE);
 		othersPath = initPath(OTHER_COMPARE);
@@ -54,36 +55,46 @@ public class JPLAGCommunication {
 
 	}
 	public void saveMainData(StudentData studentData) {
-		addToSaveArea(mainPath, studentData);
+		addToSaveArea(mainPath, studentData.getMiscStudentInfoList());
 	}
-	public void addToCompareData(StudentData otherStudents) {
+	public void addToCompareData(StudentData otherStudents) {		
 		hasOthers = true;
-		addToSaveArea(othersPath, otherStudents);		
+		addToSaveArea(othersPath, otherStudents.getMiscStudentInfoList());		
 	}
-
-	private void addToSaveArea(String assignmentPath, StudentData students) {
+	public void saveBaseCode(List<FileData> baseCode) {
+		if (baseCode != null && baseCode.size() != 0) {
+			hasBase = true;
+			String studentPath = mainPath + File.separator + "TeacherBaseCode";
+			addFilesToSaveArea(studentPath, baseCode);
+		}
+	}
+	private void addToSaveArea(String assignmentPath, List<MiscStudentInfo> students) {
 		new File(assignmentPath).mkdir();
-		for (MiscStudentInfo student : students.getMiscStudentInfoList()) {
+		for (MiscStudentInfo student : students) {
 			List<FileData> studentFiles = student.getSourceCode();
 
 			if (studentFiles != null && studentFiles.size() != 0) {
 				String studentPath = assignmentPath + File.separator + student.getFullName();
-
-				new File(studentPath).mkdir();
-				for (FileData file : studentFiles) {
-					String studentFileName = studentPath + File.separator + file.getName();
-					try {
-						PrintWriter out = new PrintWriter(studentFileName);
-						out.print(file.getFileContents());
-						out.flush();
-						out.close();
-					} catch (FileNotFoundException e) {
-						DebugLogDialog.appendException(e);
-					}
-				}
+				addFilesToSaveArea(studentPath, studentFiles);
 			}
-
 		}		
+	}
+	
+	private void addFilesToSaveArea(String savePath, List<FileData> files) {
+		new File(savePath).mkdir();
+		for (FileData file : files) {
+			String studentFileName = savePath + File.separator + file.getName();
+			try {
+				PrintWriter out = new PrintWriter(studentFileName);
+				out.print(file.getFileContents());
+				out.flush();
+				out.close();
+			} catch (FileNotFoundException e) {
+				DebugLogDialog.appendException(e);
+			}
+		}
+
+		
 	}
 	public class FinalOutput {
 		private boolean success;
@@ -125,14 +136,25 @@ public class JPLAGCommunication {
 		try {
 			String [] noOthers = {"-vq", "-s",  mainPath, "-r",  outPath,  "-l", language};
 			String []args = noOthers;
-			String [] others = new String[noOthers.length + 2];
+
 			if (hasOthers) {
-				for (int i = 0; i < noOthers.length; i++) {
-					others[i] = noOthers[i];
+				String [] others = new String[args.length + 2];
+				for (int i = 0; i < args.length; i++) {
+					others[i] = args[i];
 				}
 				others[others.length - 2] = "-prior";
 				others[others.length - 1] = othersPath;
 				args = others;
+			}
+			if (hasBase) {
+				String [] base = new String[args.length + 2];
+				for (int i = 0; i < args.length; i++) {
+					base[i] = args[i];
+				}
+				base[base.length - 2] = "-bc";
+				base[base.length - 1] = "TeacherBaseCode";
+				args = base;
+
 			}
 			String jplagOut = outPath;
 			jplagOut += File.separator + "index.html";
@@ -188,4 +210,5 @@ public class JPLAGCommunication {
 					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
+
 }

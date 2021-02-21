@@ -1,6 +1,7 @@
 package net.cdonald.jplagClassroom.gui;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -15,6 +16,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import net.cdonald.gui.utils.LoadSource;
 import net.cdonald.jplagClassroom.googleCommunication.ClassroomInfo;
 import net.cdonald.jplagClassroom.jplagCommunication.JPLAGCommunication;
 import net.cdonald.jplagClassroom.jplagCommunication.JPLAGCommunication.FinalOutput;
@@ -23,13 +25,16 @@ import net.cdonald.jplagClassroom.mainProgramData.MainClassroomData;
 import net.cdonald.jplagClassroom.mainProgramData.MainClassroomDataListener;
 import net.cdonald.jplagClassroom.utils.MyPreferences;
 import net.cdonald.net.studentData.StudentData;
+import net.cdonald.sourceCode.FileData;
 
 public class MainPanel extends JPanel implements MainClassroomDataListener {
+	private static final long serialVersionUID = 1L;
 	private OtherClassesTable compareAssignments;
 	private MainClassroomData classroomData;
 	private JComboBox<ClassroomInfo> classCombo;
 	private JComboBox<ClassroomInfo> assignmentCombo;
 	private JComboBox<JPLAGLanguages> languageCombo;
+	private List<FileData> baseCode = null;
 	private JProgressBar progressBar;
 	/**
 	 * Create the panel.
@@ -40,6 +45,7 @@ public class MainPanel extends JPanel implements MainClassroomDataListener {
 		setLayout(new BorderLayout(0, 0));
 
 		JToolBar mainToolBar = new JToolBar();
+		mainToolBar.setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(mainToolBar, BorderLayout.NORTH);
 
 		JLabel lblNewLabel = new JLabel("Class:");
@@ -65,6 +71,12 @@ public class MainPanel extends JPanel implements MainClassroomDataListener {
 
 		languageCombo = new JComboBox<JPLAGLanguages>(JPLAGLanguages.values());
 		mainToolBar.add(languageCombo);
+		
+		JButton baseCodeButton = new JButton("Base Code...");
+		baseCodeButton.setToolTipText("Initial source supplied by the teacher");
+		mainToolBar.add(baseCodeButton);
+		baseCodeButton.addActionListener((l)->{baseCode = LoadSource.loadSource(this);});
+		
 
 		JPanel mainStatusBar = new JPanel();
 
@@ -143,6 +155,9 @@ public class MainPanel extends JPanel implements MainClassroomDataListener {
 								StudentData otherStudents = classroomData.readSubmissions(otherAssignment.getCourse(), otherAssignment.getAssignment(), progressBar); 
 								jplagComm.addToCompareData(otherStudents);								
 							}
+						}
+						if (baseCode != null) {
+							jplagComm.saveBaseCode(baseCode);
 						}
 						progressBar.setIndeterminate(true);
 						progressBar.setString("Running JPLAG");
