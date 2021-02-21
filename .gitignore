@@ -17,3 +17,6 @@ gradle-app.setting
 *.prefs
 *.class
 /jplagClassroom/.classpath
+/jplagClassroom/src/main/resources/credentials.json
+/jplagClassroom/bin/main/credentials.json
+/jplagClassroom/debug.log
