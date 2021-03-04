@@ -14,6 +14,7 @@ import javax.swing.WindowConstants;
 import net.cdonald.jplagClassroom.mainProgramData.MainClassroomData;
 import net.cdonald.jplagClassroom.utils.MyPreferences;
 
+@SuppressWarnings("serial")
 public class JPLAGClassroomFrame extends JFrame {
 
 	private JPanel contentPane;

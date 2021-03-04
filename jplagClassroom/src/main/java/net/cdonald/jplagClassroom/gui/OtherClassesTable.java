@@ -2,8 +2,6 @@ package net.cdonald.jplagClassroom.gui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -16,8 +14,6 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JProgressBar;
 import javax.swing.JTable;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
@@ -51,7 +47,7 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 	}
 	public OtherClassesTable(MainClassroomData data, JProgressBar progress) {
 		super();
-		
+
 		classroomData = data;
 		classroomData.addListener(this);
 		yearCombo = new JComboBox<String>();
@@ -62,18 +58,18 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 		getColumn(COLUMN_NAMES[2]).setCellEditor(new AssignmentColumnEditor(data, progress));
 		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(getModel());
 		sorter.setSortable(0, false);
-		
+
 	}
-	
-	
+
+
 	@Override
 	public void initComplete() {
 		classroomData.fillYearComboBox(yearCombo);
 		getTableHeader().setBackground(Color.GRAY);
 		getTableHeader().setForeground(Color.BLUE);
-		
+
 	}
-	
+
 	public List<SelectedAssignment> getSelectedAssignments() {
 		List<SelectedAssignment> assignments = new ArrayList<SelectedAssignment>();
 		TableModel model = this.getModel();
@@ -88,10 +84,10 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 		}
 		return assignments;
 	}
-	
 
-	
-	
+
+
+
 	abstract class ClassInfoColumnEditor extends AbstractCellEditor implements TableCellEditor {
 		private JComboBox<ClassroomInfo> currentCombo = null;
 		private JComboBox<ClassroomInfo> emptyCombo;
@@ -101,7 +97,7 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 			emptyCombo = new JComboBox<ClassroomInfo>();
 			currentCombo = emptyCombo; 
 		}
-		
+
 		@Override
 		public Object getCellEditorValue() {
 			if (currentCombo != null) {
@@ -109,7 +105,7 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 			}
 			return null;
 		}
-		
+
 		@Override
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 
@@ -121,10 +117,10 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 				currentCombo = emptyCombo;
 			}
 
-			
+
 			return currentCombo;
 		}
-		
+
 		protected abstract JComboBox<ClassroomInfo> getCurrentCombo(JTable table, int row, int column);
 		protected ItemListener getItemListener() {
 			ItemListener itemListener = new ItemListener() {
@@ -137,18 +133,18 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 			return itemListener;
 		}
 	}
-	
+
 	class ClassColumnEditor extends ClassInfoColumnEditor {		
 		private MainClassroomData classroomData;		
 		private Map<String, JComboBox<ClassroomInfo>> possibleClasses;
-		
+
 
 
 		public ClassColumnEditor(MainClassroomData data, JProgressBar progressBar) {
 			super(progressBar);
 			classroomData = data;			
 			possibleClasses = new HashMap<String, JComboBox<ClassroomInfo>>();
-			
+
 		}
 
 		@Override
@@ -157,12 +153,14 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 			if (selectedYear != null && selectedYear.length() > 0) {
 				if (possibleClasses.containsKey(selectedYear) == false) {
 					JComboBox<ClassroomInfo> classCombo = new JComboBox<ClassroomInfo>();
-					classCombo.addActionListener((l)-> {
-						ClassroomInfo info = (ClassroomInfo)classCombo.getSelectedItem();
-						if (info != null) {
-							classroomData.fillAssignments(info, progressBar);
-							if (row == table.getModel().getRowCount() - 1) {
-		
+					classCombo.addItemListener((l)->{
+						if (l.getStateChange() == ItemEvent.SELECTED) {
+							ClassroomInfo info = (ClassroomInfo)classCombo.getSelectedItem();
+							if (info != null) {
+								classroomData.fillAssignments(info, progressBar);
+								if (row == table.getModel().getRowCount() - 1) {
+
+								}
 							}
 						}
 					});
@@ -180,7 +178,7 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 	class AssignmentColumnEditor extends ClassInfoColumnEditor {
 		private MainClassroomData classroomData;	
 		private Map<String, JComboBox<ClassroomInfo>> possibleAssignments;
-		
+
 		public AssignmentColumnEditor(MainClassroomData data, JProgressBar progressBar) {
 			super(progressBar);
 			classroomData = data;			
@@ -193,7 +191,7 @@ public class OtherClassesTable extends JTable implements MainClassroomDataListen
 			ClassroomInfo selectedClass = (ClassroomInfo)table.getModel().getValueAt(row, 1);
 			if (selectedClass != null && selectedClass.getId() != null) {
 				if (possibleAssignments.containsKey(selectedClass.getId()) == false) {
-					
+
 					JComboBox<ClassroomInfo> assignmentCombo = new JComboBox<ClassroomInfo>();
 					assignmentCombo.setEnabled(false);
 					classroomData.fillAssignmentComboBox(selectedClass, assignmentCombo, progressBar, true);

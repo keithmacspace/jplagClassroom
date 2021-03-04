@@ -2,6 +2,7 @@ package net.cdonald.jplagClassroom.gui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.event.ItemEvent;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -53,10 +54,11 @@ public class MainPanel extends JPanel implements MainClassroomDataListener {
 
 		assignmentCombo = new  JComboBox<ClassroomInfo>();		
 		classCombo = new JComboBox<ClassroomInfo>();
-		classCombo.addActionListener((l)->{
-			assignmentCombo.removeAllItems();
-			classroomData.fillAssignmentComboBox((ClassroomInfo)classCombo.getSelectedItem(), assignmentCombo, progressBar, false);
-
+		classCombo.addItemListener((l)->{
+			if (l.getStateChange() == ItemEvent.SELECTED) {
+				assignmentCombo.removeAllItems();
+				classroomData.fillAssignmentComboBox((ClassroomInfo)classCombo.getSelectedItem(), assignmentCombo, progressBar, false);
+			}
 		});
 		mainToolBar.add(classCombo);
 
